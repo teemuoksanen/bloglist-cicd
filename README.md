@@ -1,4 +1,4 @@
-# CI/CD Example (for Full Stack Open)
+# Bloglist CI/CD (for Full Stack Open)
 
 This is an example build for CI/CD pipeline for Full Stack Open, exercise 11.21.
 
