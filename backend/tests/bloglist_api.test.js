@@ -1,12 +1,45 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const app = require('../app')
 const helper = require('./test_helper')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 const api = supertest(app)
 
+let token = null;
+let decodedToken = {};
+
 describe('when there is initially some blogs saved', () => {
+
+  beforeAll(async () => {
+    const credentials = {
+      username: 'root',
+      password: 'salainen'
+    }
+    await User.deleteMany({});
+    const passwordHash = await bcrypt.hash(credentials.password, 10)
+    const user = new User({
+      username: credentials.username,
+      name: 'Admin',
+      passwordHash
+    })
+    await user.save()
+    const result = await api
+      .post('/api/login')
+      .send(credentials);
+    token = result.body.token
+    try {
+      decodedToken = jwt.verify(token, process.env.SECRET)
+    } catch(e) {
+      console.error('token could not be decoded', e)
+    }
+    for(let i=0; i<helper.initialBlogs.length; i++) {
+      helper.initialBlogs[i].user = decodedToken.id;
+    }
+  })
 
   beforeEach(async () => {
     await Blog.remove({})
@@ -36,8 +69,8 @@ describe('when there is initially some blogs saved', () => {
 
   test('there is a correct id field', async () => {
     const response = await api.get('/api/blogs')
-    expect(response.body[0].id).toBeDefined();
-  });
+    expect(response.body[0].id).toBeDefined()
+  })
 
   describe('creating a blog', () => {
 
@@ -51,6 +84,7 @@ describe('when there is initially some blogs saved', () => {
 
       await api
         .post('/api/blogs')
+        .set('Authorization', 'bearer ' + token)
         .send(newBlog)
         .expect(200)
         .expect('Content-Type', /application\/json/)
@@ -73,6 +107,7 @@ describe('when there is initially some blogs saved', () => {
 
       await api
         .post('/api/blogs')
+        .set('Authorization', 'bearer ' + token)
         .send(newBlog)
         .expect(200)
         .expect('Content-Type', /application\/json/)
@@ -88,6 +123,7 @@ describe('when there is initially some blogs saved', () => {
 
       await api
         .post('/api/blogs')
+        .set('Authorization', 'bearer ' + token)
         .send(newBlog)
         .expect(400)
 
@@ -105,6 +141,7 @@ describe('when there is initially some blogs saved', () => {
 
       await api
         .delete(`/api/blogs/${blogToDelete.id}`)
+        .set('Authorization', 'bearer ' + token)
         .expect(204)
 
       const blogsAtEnd = await helper.blogsInDb()
@@ -118,7 +155,7 @@ describe('when there is initially some blogs saved', () => {
   })
 
   describe('modifying of a blog', () => {
-    test('with additional like succeeds with status code 204', async () => {
+    test('with additional like succeeds with status code 200', async () => {
       const blogsAtStart = await helper.blogsInDb()
       const blogToModify = blogsAtStart[0]
 
@@ -131,6 +168,7 @@ describe('when there is initially some blogs saved', () => {
 
       await api
         .put(`/api/blogs/${blogToModify.id}`)
+        .set('Authorization', 'bearer ' + token)
         .send(modifiedBlog)
         .expect(200)
 
