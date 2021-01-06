@@ -87,28 +87,28 @@ jobs:
         if: ${{ github.event_name == 'push' && contains(join(github.event.commits.*.message, ', '), '#skip') == false }}
 
       # SLACK NOTIFICATIONS
-      # - name: Slack notification / Success
-      #   uses: 8398a7/action-slack@v3
-      #   with:
-      #     status: custom
-      #     fields: commit,author,took
-      #     custom_payload: |
-      #       {
-      #         username: 'github_action',
-      #         icon_emoji: ':octocat:',
-      #         attachments: [{
-      #         color: 'good',
-      #           text: `New version deployed to https://bloglist-cicd-teusa.herokuapp.com/ (${process.env.AS_COMMIT}) by ${process.env.AS_AUTHOR}. Built took ${process.env.AS_TOOK}`,
-      #         }]
-      #       }
-      #   env:
-      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-      #   if: ${{ github.event_name == 'push' && contains(join(github.event.commits.*.message, ', '), '#skip') == false && success() }}
-      # - name: Slack notification / Failure
-      #   uses: 8398a7/action-slack@v3
-      #   with:
-      #     status: ${{ job.status }}
-      #     fields: all
-      #   env:
-      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} 
-      #   if: ${{ github.event_name == 'push' && failure() }}
+      - name: Slack notification / Success
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          fields: commit,author,took
+          custom_payload: |
+            {
+              username: 'github_action',
+              icon_emoji: ':octocat:',
+              attachments: [{
+              color: 'good',
+                text: `New version deployed to https://bloglist-cicd-teusa.herokuapp.com/ (${process.env.AS_COMMIT}) by ${process.env.AS_AUTHOR}. Built took ${process.env.AS_TOOK}`,
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+        if: ${{ github.event_name == 'push' && contains(join(github.event.commits.*.message, ', '), '#skip') == false && success() }}
+      - name: Slack notification / Failure
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: all
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} 
+        if: ${{ github.event_name == 'push' && failure() }}
