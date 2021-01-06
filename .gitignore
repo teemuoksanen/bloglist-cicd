@@ -1,6 +1,6 @@
 *.code-workspace
 node_modules/
-build/
+frontend/build/
 
 # TypeScript v1 declaration files
 typings/
