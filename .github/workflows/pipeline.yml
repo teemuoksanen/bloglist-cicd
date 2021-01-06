@@ -1,0 +1,112 @@
+name: Deployment Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
+
+jobs:
+  deployment_pipeline:
+    runs-on: ubuntu-18.04
+    steps:      
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      
+      # BACKEND
+      - name: Backend / npm install
+        working-directory: ./backend
+        run: npm install
+      - name: Backend / lint
+        working-directory: ./backend
+        run: npm run lint
+      - name: Backend / test
+        run: TEST_MONGODB_URI=$TEST_MONGODB_URI PORT=$PORT SECRET=$SECRET npm test
+        working-directory: ./backend
+        env:
+          TEST_MONGODB_URI: ${{secrets.TEST_MONGODB_URI}}
+          PORT: 3003
+          SECRET: ${{secrets.SECRET}}
+      
+      # FRONTEND
+      - name: Frontend / npm install
+        working-directory: ./frontend
+        run: npm install
+      - name: Frontend / lint
+        working-directory: ./frontend
+        run: npm run lint
+      - name: Frontend / build
+        working-directory: ./frontend
+        run: npm run build
+      - name: Frontend / test
+        working-directory: ./frontend
+        run: npm test
+      
+      # END-TO-END
+      # - name: E-2-E testing / Start backend server
+      #   working-directory: ./backend
+      #   run: TEST_MONGODB_URI=$TEST_MONGODB_URI PORT=$PORT SECRET=$SECRET npm run start:test &
+      #   env:
+      #     TEST_MONGODB_URI: ${{secrets.TEST_MONGODB_URI}}
+      #     PORT: 3003
+      #     SECRET: ${{secrets.SECRET}}
+      # - name: E-2-E testing / Start frontend development server
+      #   working-directory: ./frontend
+      #   run: npm start
+      # - name: E-2-E testing / Run Cypress tests
+      #   working-directory: ./frontend
+      #   run: npm run test:e2e
+      
+      # HEROKU
+      - name: Deploy on Heroku
+        uses: akhileshns/heroku-deploy@v3.7.8
+        if: "github.event_name == 'push' && !contains(github.event.head_commit.message, '#skip')"
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "bloglist-cicd-teusa"
+          heroku_email: "heroku@teemuoksanen.fi"
+          appdir: "backend"
+          healthcheck: "https://bloglist-cicd-teusa.herokuapp.com/api/health"
+          checkstring: "ok"
+          rollbackonhealthcheckfailed: true
+
+      # VERSIONS BUMP
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@1.33.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BUMP: "patch"
+        if: ${{ github.event_name == 'push' && contains(join(github.event.commits.*.message, ', '), '#skip') == false }}
+
+      # SLACK NOTIFICATIONS
+      # - name: Slack notification / Success
+      #   uses: 8398a7/action-slack@v3
+      #   with:
+      #     status: custom
+      #     fields: commit,author,took
+      #     custom_payload: |
+      #       {
+      #         username: 'github_action',
+      #         icon_emoji: ':octocat:',
+      #         attachments: [{
+      #         color: 'good',
+      #           text: `New version deployed to https://bloglist-cicd-teusa.herokuapp.com/ (${process.env.AS_COMMIT}) by ${process.env.AS_AUTHOR}. Built took ${process.env.AS_TOOK}`,
+      #         }]
+      #       }
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+      #   if: ${{ github.event_name == 'push' && contains(join(github.event.commits.*.message, ', '), '#skip') == false && success() }}
+      # - name: Slack notification / Failure
+      #   uses: 8398a7/action-slack@v3
+      #   with:
+      #     status: ${{ job.status }}
+      #     fields: all
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} 
+      #   if: ${{ github.event_name == 'push' && failure() }}

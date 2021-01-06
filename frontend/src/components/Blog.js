@@ -9,10 +9,6 @@ const Blog = ({ blog, getBloglist, showNotification, user }) => {
     event.preventDefault()
 
     const updatedBlog = {
-      title: blog.title,
-      author: blog.author,
-      url: blog.url,
-      user: blog.user,
       likes: blog.likes+1
     }
 
