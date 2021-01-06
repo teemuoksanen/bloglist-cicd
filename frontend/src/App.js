@@ -124,13 +124,13 @@ const App = () => {
         <form onSubmit={handleLogin}>
           <div>
             username
-            <input  {...usernameField.omitreset} />
+            <input id="username" {...usernameField.omitreset} />
           </div>
           <div>
             password
-            <input  {...passwordField.omitreset} />
+            <input id="password" {...passwordField.omitreset} />
           </div>
-          <button type="submit">login</button>
+          <button id="loginbutton" type="submit">login</button>
         </form>
       </div>
     )
@@ -140,7 +140,7 @@ const App = () => {
     <div>
       <h2>Blogs</h2>
       <Notification message={notification.message} type={notification.type} />
-      <p>{user.name} logged in <button onClick={handleLogout}>logout</button></p>
+      <p>{user.name} logged in <button id="logoutbutton" onClick={handleLogout}>logout</button></p>
       {blogForm()}
       {blogs.sort(function (a, b){
         return b.likes - a.likes

@@ -49,19 +49,19 @@ jobs:
         run: npm test
       
       # END-TO-END
-      # - name: E-2-E testing / Start backend server
-      #   working-directory: ./backend
-      #   run: TEST_MONGODB_URI=$TEST_MONGODB_URI PORT=$PORT SECRET=$SECRET npm run start:test &
-      #   env:
-      #     TEST_MONGODB_URI: ${{secrets.TEST_MONGODB_URI}}
-      #     PORT: 3003
-      #     SECRET: ${{secrets.SECRET}}
-      # - name: E-2-E testing / Start frontend development server
-      #   working-directory: ./frontend
-      #   run: npm start
-      # - name: E-2-E testing / Run Cypress tests
-      #   working-directory: ./frontend
-      #   run: npm run test:e2e
+      - name: E-2-E testing / Start backend server
+        working-directory: ./backend
+        run: TEST_MONGODB_URI=$TEST_MONGODB_URI PORT=$PORT SECRET=$SECRET npm run start:test
+        env:
+          TEST_MONGODB_URI: ${{secrets.TEST_MONGODB_URI}}
+          PORT: 3003
+          SECRET: ${{secrets.SECRET}}
+      - name: E-2-E testing / Start frontend development server
+        working-directory: ./frontend
+        run: npm start
+      - name: E-2-E testing / Run Cypress tests
+        working-directory: ./frontend
+        run: npm run test:e2e
       
       # HEROKU
       - name: Deploy on Heroku

@@ -8,17 +8,17 @@ const BlogForm = ({ addBlog, newTitleField, newAuthorField, newUrlField }) => {
       <form onSubmit={addBlog}>
         <div>
           title:
-          <input {...newTitleField.omitreset} />
+          <input id="title" {...newTitleField.omitreset} />
         </div>
         <div>
           author:
-          <input {...newAuthorField.omitreset} />
+          <input id="author" {...newAuthorField.omitreset} />
         </div>
         <div>
           url:
-          <input {...newUrlField.omitreset} />
+          <input id="url" {...newUrlField.omitreset} />
         </div>
-        <button type="submit">create</button>
+        <button id="createnewbutton" type="submit">create</button>
       </form>
     </div>
   )

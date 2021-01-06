@@ -15,7 +15,9 @@
     "build": "react-scripts build && rm -rf ../backend/build && cp -r build ../backend",
     "test": "react-scripts test --runInBand",
     "eject": "react-scripts eject",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "cypress:open": "cypress open",
+    "test:e2e": "cypress run"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -36,6 +38,7 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.4.0",
+    "cypress": "^6.2.1",
     "eslint": "^6.6.0",
     "eslint-plugin-jest": "^23.2.0",
     "eslint-plugin-react": "^7.22.0",
