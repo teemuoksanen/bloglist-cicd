@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
 const app = require('../app')
 const helper = require('./test_helper')
 const Blog = require('../models/blog')
@@ -9,8 +9,8 @@ const User = require('../models/user')
 
 const api = supertest(app)
 
-let token = null;
-let decodedToken = {};
+let token = null
+let decodedToken = {}
 
 describe('when there is initially some blogs saved', () => {
 
@@ -19,7 +19,7 @@ describe('when there is initially some blogs saved', () => {
       username: 'root',
       password: 'salainen'
     }
-    await User.deleteMany({});
+    await User.deleteMany({})
     const passwordHash = await bcrypt.hash(credentials.password, 10)
     const user = new User({
       username: credentials.username,
@@ -29,7 +29,7 @@ describe('when there is initially some blogs saved', () => {
     await user.save()
     const result = await api
       .post('/api/login')
-      .send(credentials);
+      .send(credentials)
     token = result.body.token
     try {
       decodedToken = jwt.verify(token, process.env.SECRET)
@@ -37,7 +37,7 @@ describe('when there is initially some blogs saved', () => {
       console.error('token could not be decoded', e)
     }
     for(let i=0; i<helper.initialBlogs.length; i++) {
-      helper.initialBlogs[i].user = decodedToken.id;
+      helper.initialBlogs[i].user = decodedToken.id
     }
   })
 
