@@ -56,9 +56,9 @@ jobs:
           TEST_MONGODB_URI: ${{secrets.TEST_MONGODB_URI}}
           PORT: 3003
           SECRET: ${{secrets.SECRET}}
-      - name: E-2-E testing / Start frontend development server &
+      - name: E-2-E testing / Start frontend development server
         working-directory: ./frontend
-        run: npm start
+        run: npm start &
       - name: E-2-E testing / Run Cypress tests
         working-directory: ./frontend
         run: npm run test:e2e
